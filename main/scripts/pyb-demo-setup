@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+from os import system, path
+import subprocess
+import sys
+
+CONDA_ENV_NAME = "prod-conda-env"
+DEPENDENCIES_CONFIG_DIR = "{0}/etc/.dependencies".format(path.dirname(path.dirname(__file__)))
+
+
+class CommandLine:
+    def __init__(self):
+        self._conda_dependencies_file = "{0}/environment.yml".format(DEPENDENCIES_CONFIG_DIR)
+
+    def install_conda_dependencies(self):
+        env_exists = "envs/{0}\n".format(CONDA_ENV_NAME) in subprocess.check_output(["conda", "env", "list"]). \
+            decode('utf-8')
+        if env_exists:
+            system("conda env update -f {0}".format(self._conda_dependencies_file))
+        else:
+            system("conda env create -f {0}".format(self._conda_dependencies_file))
+        system("source activate {0}".format(CONDA_ENV_NAME))
+
+
+if __name__ == '__main__':
+    sys.exit(CommandLine().install_conda_dependencies())
